@@ -4,7 +4,7 @@
 
 What's in this submission:
 
-- Case study deck (PowerPoint): the primary document for the assessment center walkthrough. Audit, all 6 screens with design rationale, accessibility checklist, usability test plan, impact prediction, and AI usage summary. <https://www.figma.com/deck/6ZGdvfbLYRma7U2VkZMPT6/Tobilola-Adebayo_NovaPay-Presentation?node-id=2-33&viewport=-34%2C33%2C0.31&t=0jpDawssSF87OZzC-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&desktop-link-click-timestamp=1789640129465&desktop-ul-exp-bucket=V>
+- Case study deck (PowerPoint): the primary document for the assessment center walkthrough. Audit, all 6 screens with design rationale, accessibility checklist, usability test plan, and AI usage summary. <https://www.figma.com/deck/6ZGdvfbLYRma7U2VkZMPT6/Tobilola-Adebayo_NovaPay-Presentation?node-id=2-33&viewport=-34%2C33%2C0.31&t=0jpDawssSF87OZzC-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&desktop-link-click-timestamp=1789640129465&desktop-ul-exp-bucket=V>
 
 - NovaPay KYC prototype · HTML: [NovaPay-kyc-prototype.html](./NovaPay-kyc-prototype.html), open it in any browser, no installation needed.
 
