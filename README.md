@@ -4,7 +4,7 @@
 * Case study deck (PowerPoint): the primary document for the assessment center walkthrough. Audit, all 6 screens with design rationale, accessibility checklist, usability test plan, impact prediction, and AI usage summary.
 https://www.figma.com/deck/6ZGdvfbLYRma7U2VkZMPT6/Tobilola-Adebayo_NovaPay-Presentation?node-id=2-108&viewport=-34%2C33%2C0.31&t=dLO7BsgrpxiRpSkA-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1
 
-* Novalend KYC prototype · HTML: Download the HTML File, Open it in any browser; no installation needed.
+* NovaPay KYC prototype · HTML: Download the HTML File, Open it in any browser; no installation needed.
 
 * Figma link
 https://www.figma.com/proto/92f2Teq24jiaDRGUHg75Lr/NOVA_PAY?node-id=6002-1829&viewport=-2669%2C2893%2C0.37&t=TdrSaftXg6hpalQ1-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=6002%3A1829&page-id=0%3A1
