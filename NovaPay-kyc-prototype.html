@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaLend KYC Redesign, Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F1B3D;
+    --navy-soft: #1D2E5A;
+    --amber: #D9A441;
+    --amber-deep: #B3841F;
+    --green: #1B7A4A;
+    --green-bg: #E9F4EE;
+    --error: #B3261E;
+    --error-bg: #FBEAE8;
+    --bg: #F6F5F1;
+    --panel: #FFFFFF;
+    --ink: #14181F;
+    --ink-soft: #52585F;
+    --line: #E4E1D8;
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  .workspace {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 48px;
+    padding: 56px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+
+  /* ---- Control rail ---- */
+  .rail {
+    width: 300px;
+    padding-top: 8px;
+  }
+  .rail-eyebrow {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    color: var(--amber-deep);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .rail h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    color: var(--navy);
+  }
+  .rail p.desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin: 0 0 28px;
+  }
+  .screen-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+  .screen-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 11px 12px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .screen-btn:hover { background: #EDEBE3; }
+  .screen-btn.active {
+    background: var(--navy);
+    color: #fff;
+  }
+  .screen-btn .num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .screen-btn.active .num { background: rgba(255,255,255,0.2); }
+
+  .annotation {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+  .annotation strong {
+    display: block;
+    color: var(--navy);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .annotation .tag {
+    display: inline-block;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+
+  /* ---- Phone frame ---- */
+  .phone-shell {
+    width: 375px;
+    height: 780px;
+    background: var(--navy);
+    border-radius: 46px;
+    padding: 14px;
+    box-shadow: 0 30px 60px -20px rgba(15,27,61,0.35);
+    flex-shrink: 0;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--panel);
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 22px;
+    background: var(--navy);
+    border-radius: 0 0 14px 14px;
+    z-index: 20;
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    animation: fadeIn 0.25s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Top bar shared across flow screens */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 34px 20px 10px;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #F0EFEA;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .lang-toggle {
+    display: flex;
+    background: #F0EFEA;
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .lang-opt {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .lang-opt.active {
+    background: var(--navy);
+    color: #fff;
+  }
+  .step-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .progress-track {
+    height: 4px;
+    background: #ECEAE2;
+    margin: 0 20px 18px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--amber);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .time-chip {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    padding: 0 20px 6px;
+    flex-shrink: 0;
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 24px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h2.screen-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 22px;
+    color: var(--navy);
+    margin: 8px 0 8px;
+    line-height: 1.3;
+  }
+  p.screen-body {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin: 0 0 18px;
+  }
+
+  .icon-badge {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: var(--green-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .brand-mark {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .brand-mark .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+    display: inline-block;
+  }
+  .brand-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+
+  .cta {
+    margin-top: auto;
+    width: 100%;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    min-height: 48px;
+  }
+  .cta:hover { background: var(--navy-soft); }
+  .cta.secondary {
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--line);
+    margin-top: 10px;
+  }
+  .cta.ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    font-weight: 500;
+    font-size: 13.5px;
+    padding: 10px;
+    margin-top: 8px;
+  }
+
+  .need-list {
+    list-style: none;
+    padding: 0; margin: 0 0 20px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .need-list li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; color: var(--ink);
+    background: #F8F7F3;
+    padding: 11px 14px;
+    border-radius: 12px;
+  }
+
+  .accordion {
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+  .accordion summary {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    list-style: none;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .accordion summary::-webkit-details-marker { display: none; }
+  .accordion p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin: 10px 0 0;
+  }
+
+  /* Screen 2: ID capture */
+  .id-chips {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .chip {
+    padding: 9px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--line);
+    font-size: 13px;
+    background: #fff;
+    cursor: pointer;
+    min-height: 44px;
+    display: flex; align-items: center;
+  }
+  .chip.selected {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+  .viewport {
+    background: #1A2340;
+    border-radius: 18px;
+    height: 200px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .id-frame {
+    width: 78%; height: 62%;
+    border: 2px dashed rgba(255,255,255,0.55);
+    border-radius: 10px;
+  }
+  .viewport-hint {
+    position: absolute; bottom: 10px; left: 0; right: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.75);
+    font-size: 12px;
+  }
+
+  .id-guide {
+    background: #F8F7F3;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .id-guide svg { flex-shrink: 0; }
+  .id-guide-text {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .id-guide-text strong {
+    display: block;
+    font-size: 12.5px;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .shutter-row {
+    display: flex; justify-content: center; margin-bottom: 6px;
+  }
+  .shutter {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--navy);
+    cursor: pointer;
+  }
+  .helper-text {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 8px 0 14px;
+  }
+  .fallback-prompt {
+    background: #FDF5E7;
+    border: 1px solid #F0DDB0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--amber-deep);
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+
+  .review-check {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--green);
+    color: #fff;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .quality-list {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 14px;
+  }
+  .quality-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12.5px;
+    color: var(--ink);
+  }
+  .quality-item .dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .quality-item .dot.pass { background: var(--green); }
+  .quality-item .dot.warn { background: var(--amber-deep); }
+  .manual-form {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .field {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .field label {
+    font-size: 12.5px; font-weight: 600; color: var(--ink);
+  }
+  .field input {
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    min-height: 44px;
+  }
+  .field input:focus, .chip:focus, .shutter:focus, .cta:focus, .back-btn:focus {
+    outline: 3px solid #A9C4FF;
+    outline-offset: 1px;
+  }
+
+  /* Screen 3: selfie */
+  .face-viewport {
+    background: #1A2340;
+    border-radius: 18px;
+    height: 260px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .face-oval {
+    width: 140px; height: 180px;
+    border-radius: 50%;
+    border: 3px solid var(--amber);
+  }
+  .live-feedback {
+    position: absolute; bottom: 14px; left: 0; right: 0;
+    text-align: center;
+  }
+  .live-feedback span {
+    background: rgba(255,255,255,0.95);
+    color: var(--navy);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  /* Screen 5: confirmation */
+  .confirm-wrap {
+    align-items: center;
+    text-align: center;
+    padding-top: 30px;
+  }
+  .check-badge {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--green-bg);
+    color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px;
+    margin: 0 auto 18px;
+  }
+  .ref-line {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    background: #F8F7F3;
+    padding: 8px 14px;
+    border-radius: 10px;
+    margin: 6px 0 20px;
+  }
+  .next-list {
+    list-style: none;
+    padding: 0; margin: 0 0 24px;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .next-list li {
+    font-size: 13.5px; color: var(--ink-soft);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .next-list li::before {
+    content: "✓";
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Screen 6: error */
+  .error-wrap { padding-top: 30px; text-align: center; }
+  .warn-badge {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: #FDF3E4;
+    color: var(--amber-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+  }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #F8F7F3;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 14px 0 22px;
+  }
+  .pulse-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--amber);
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .upload-bar {
+    height: 6px; background: #ECEAE2; border-radius: 6px;
+    margin: 0 0 22px; overflow: hidden; text-align: left;
+  }
+  .upload-bar-fill {
+    height: 100%; width: 92%;
+    background: var(--green);
+    border-radius: 6px;
+  }
+  .byte-text {
+    font-size: 11.5px; color: var(--ink-soft); margin-top: -14px; margin-bottom: 18px; text-align: right;
+  }
+
+  @media (max-width: 760px) {
+    .workspace { flex-direction: column; align-items: center; }
+    .rail { width: 100%; max-width: 375px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="workspace">
+
+  <!-- Control rail -->
+  <div class="rail">
+    <div class="rail-eyebrow">FirstBank Digital Factory, Take-Home</div>
+    <h1>NovaLend Eligibility &amp; KYC Flow Redesign</h1>
+    <p class="desc">Six required screens, click through to preview the flow. Each screen ties back to a verbatim pain point from the drop-off cohort.</p>
+
+    <div class="screen-list" id="screen-list">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="annotation" id="annotation-box">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- Phone -->
+  <div class="phone-shell">
+    <div class="phone-screen">
+      <div class="notch"></div>
+
+      <!-- SCREEN 1: Start / Context -->
+      <div class="screen active" id="screen-1">
+        <div class="topbar">
+          <div class="lang-toggle" id="lang-toggle">
+            <button class="lang-opt active" data-lang="en" onclick="setLang('en')">EN</button>
+            <button class="lang-opt" data-lang="pcm" onclick="setLang('pcm')">Pidgin</button>
+          </div>
+          <span class="step-label">Step 1 of 4</span>
+        </div>
+        <div class="content">
+          <div class="brand-row">
+            <span class="brand-mark"><span class="dot"></span>NovaPay</span>
+            <span class="brand-sub">· by FirstBank</span>
+          </div>
+          <div class="icon-badge">🪪</div>
+          <h2 class="screen-title" id="s1-title">Let's verify it's you</h2>
+          <p class="screen-body" id="s1-body">Good news, we already have your BVN on file. We just need to confirm your ID and take a quick selfie.</p>
+          <div class="time-chip" style="padding:0 0 16px;" id="s1-time">⏱ Takes about 3 minutes</div>
+          <ul class="need-list" id="s1-needs">
+            <li>🪪 A valid ID, NIN, driver's license or voter's card</li>
+            <li>🤳 A few seconds for a selfie</li>
+          </ul>
+          <div class="accordion">
+            <details>
+              <summary id="s1-accordion-q">Why confirm my identity if you have my BVN? <span>＋</span></summary>
+              <p id="s1-accordion-a">Your BVN confirms who you were when you registered, it doesn't confirm it's really you applying right now. The ID photo and live selfie prove that, so no one else can take out a loan using your details.</p>
+            </details>
+          </div>
+          <button class="cta" style="margin-top:20px;" id="s1-cta" onclick="showScreen(2)">Start verification</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: ID Capture -->
+      <div class="screen" id="screen-2">
+        <div class="topbar">
+          <button class="back-btn" onclick="showScreen(1)" aria-label="Go back">←</button>
+          <span class="step-label">Step 2 of 4</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:50%"></div></div>
+        <div class="time-chip">~2 min left</div>
+        <div class="content">
+          <h2 class="screen-title" style="font-size:19px;">Scan your ID</h2>
+          <p class="screen-body" style="margin-bottom:10px;">Choose your ID type, then line it up in the frame</p>
+          <div class="id-chips" id="id-chips">
+            <button class="chip selected" onclick="selectChip(this)">NIN</button>
+            <button class="chip" onclick="selectChip(this)">Driver's License</button>
+            <button class="chip" onclick="selectChip(this)">Voter's Card</button>
+          </div>
+
+          <div id="camera-mode">
+            <div class="id-guide" id="id-guide">
+              <!-- populated by JS based on selected chip -->
+            </div>
+            <div class="viewport" id="live-viewport">
+              <div class="id-frame" aria-label="Position your ID within this frame"></div>
+              <div class="viewport-hint">Align ID within the frame</div>
+            </div>
+            <div class="viewport" id="review-viewport" style="display:none; background:#0E1530;">
+              <div class="id-frame" style="border-style:solid; border-color:#3AA66B;"></div>
+              <div class="review-check" id="review-check"></div>
+            </div>
+            <div class="shutter-row" id="shutter-row">
+              <button class="shutter" aria-label="Capture ID photo" onclick="captureId()"></button>
+            </div>
+            <div id="review-actions" style="display:none;">
+              <div class="quality-list" id="quality-list"></div>
+              <button class="cta" id="use-photo-btn" onclick="showScreen(3)">Use this photo</button>
+              <button class="cta secondary" onclick="retakePhoto()">Retake</button>
+            </div>
+            <p class="helper-text" id="capture-helper">Hold steady, we'll capture automatically. Photo will be compressed to upload quickly on slower connections.</p>
+            <div class="fallback-prompt" id="fallback-prompt" style="display:none;" onclick="toggleManualEntry()">Camera not cooperating? Enter details manually</div>
+          </div>
+
+          <div id="manual-mode" style="display:none;">
+            <div class="manual-form">
+              <div class="field"><label for="idnum">ID number</label><input id="idnum" type="text" placeholder="e.g. 12345678901"></div>
+              <div class="field"><label for="fullname">Full name</label><input id="fullname" type="text" placeholder="As shown on ID"></div>
+              <div class="field"><label for="dob">Date of birth</label><input id="dob" type="text" placeholder="DD/MM/YYYY"></div>
+            </div>
+            <p class="helper-text" style="text-align:left;">A photo of the physical ID is still needed for verification, but a blurry shot won't block you, this form carries the details.</p>
+            <button class="cta ghost" style="margin-top:0;" onclick="toggleCameraMode()">↩ Prefer to scan instead? Go back to camera</button>
+          </div>
+
+          <button class="cta" onclick="showScreen(3)">Continue</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: Selfie / Liveness -->
+      <div class="screen" id="screen-3">
+        <div class="topbar">
+          <button class="back-btn" onclick="showScreen(2)" aria-label="Go back">←</button>
+          <span class="step-label">Step 3 of 4</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+        <div class="time-chip">~1 min left</div>
+        <div class="content">
+          <h2 class="screen-title" style="font-size:19px;">Quick selfie to confirm it's you</h2>
+          <p class="screen-body" style="margin-bottom:12px;">Don't worry about finding the perfect spot, just make sure your face is visible.</p>
+          <div class="face-viewport">
+            <div class="face-oval" aria-hidden="true"></div>
+            <div class="live-feedback"><span>Perfect, hold still</span></div>
+          </div>
+          <div class="accordion" style="margin-bottom:16px;">
+            <details>
+              <summary>Having trouble? <span>＋</span></summary>
+              <p>Remove glasses or a mask if you're wearing one, move toward any light source nearby, and hold your phone at eye level.</p>
+            </details>
+          </div>
+          <button class="cta" onclick="showScreen(4)">Continue</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: Review / progress state annotated -->
+      <div class="screen" id="screen-4">
+        <div class="topbar">
+          <button class="back-btn" onclick="showScreen(3)" aria-label="Go back">←</button>
+          <span class="step-label">Step 4 of 4</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+        <div class="time-chip">~30 sec left</div>
+        <div class="content">
+          <div class="icon-badge">📋</div>
+          <h2 class="screen-title">Review &amp; submit</h2>
+          <p class="screen-body">Check your details below, then submit for review.</p>
+          <ul class="need-list">
+            <li>🪪 ID: NIN •••• 6701, captured</li>
+            <li>🤳 Selfie, captured</li>
+          </ul>
+          <button class="cta" onclick="showScreen(5)">Submit application</button>
+          <button class="cta ghost" onclick="showScreen(6)">(Demo: simulate connection drop)</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 5: Confirmation -->
+      <div class="screen" id="screen-5">
+        <div class="topbar"><span></span><span></span></div>
+        <div class="content confirm-wrap">
+          <div class="brand-row" style="justify-content:center;">
+            <span class="brand-mark"><span class="dot"></span>NovaPay</span>
+            <span class="brand-sub">· by FirstBank</span>
+          </div>
+          <div class="check-badge">✓</div>
+          <h2 class="screen-title" style="font-size:20px;">You're all set</h2>
+          <p class="screen-body">We've received your ID and selfie. Your NovaLend decision will be ready within 24 hours, we'll notify you the moment it's ready.</p>
+          <div class="ref-line">Reference: NVL-284719</div>
+          <ul class="next-list">
+            <li>We'll review your details</li>
+            <li>You'll get a push notification with your decision</li>
+            <li>No further action needed from you right now</li>
+          </ul>
+          <button class="cta" onclick="showScreen(1)">Done</button>
+          <button class="cta ghost">Track application status</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 6: Error / Retry -->
+      <div class="screen" id="screen-6">
+        <div class="topbar">
+          <span></span>
+          <span class="step-label">Step 4 of 4</span>
+        </div>
+        <div class="content error-wrap">
+          <div class="warn-badge">⚠</div>
+          <h2 class="screen-title" style="font-size:19px;">Connection interrupted</h2>
+          <p class="screen-body">No problem, we've saved your progress. We'll finish uploading automatically once you're back online.</p>
+          <div class="status-pill"><span class="pulse-dot"></span> Saved as draft · Waiting for connection</div>
+          <div class="upload-bar"><div class="upload-bar-fill"></div></div>
+          <div class="byte-text">240 KB of 260 KB, almost there</div>
+          <button class="cta" onclick="showScreen(5)">Retry now</button>
+          <button class="cta secondary" onclick="showScreen(7)">Continue later</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 7: Saved for later confirmation -->
+      <div class="screen" id="screen-7">
+        <div class="topbar"><span></span><span></span></div>
+        <div class="content confirm-wrap">
+          <div class="check-badge" style="background:#F0EFEA; color:#52585F;">💾</div>
+          <h2 class="screen-title" style="font-size:20px;">Saved for later</h2>
+          <p class="screen-body">Your progress is safely stored. Pick up right where you left off whenever you're ready, nothing needs to be redone.</p>
+          <div class="ref-line">Draft reference: NVL-284719</div>
+          <button class="cta" style="margin-top:8px;" onclick="showScreen(1)">Back to NovaPay home</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const screens = [
+    {
+      id: 1, name: "Start / Context",
+      note: "Leads with BVN-recognition and a time estimate before asking for anything, reframes the flow from “prove who you are” to “confirm what we know.”",
+      tag: "Pain points 1 & 4"
+    },
+    {
+      id: 2, name: "ID Capture + fallback",
+      note: "Manual-entry fallback appears automatically after a failed capture, not hidden in a menu. Photo requirement is decoupled from OCR, so a bad photo no longer hard-blocks submission.",
+      tag: "Pain point 2 · hard constraint"
+    },
+    {
+      id: 3, name: "Selfie / Liveness",
+      note: "Passive, motion-based liveness (no audio) removes the “quiet room” dependency structurally. Real-time adaptive feedback replaces a static precondition.",
+      tag: "Pain point 3"
+    },
+    {
+      id: 4, name: "Review (progress state)",
+      note: "Persistent step counter + live time estimate shown across every screen, recalculated per step, the “Continue Later / drop” demo button jumps to Screen 6.",
+      tag: "Pain point 4 · continuous"
+    },
+    {
+      id: 5, name: "Confirmation",
+      note: "Replaces open-ended “processing” with a concrete 24-hour window and a reference number, closes the time-anxiety loop the whole flow addresses.",
+      tag: "Closes pain point 4"
+    },
+    {
+      id: 6, name: "Error / Retry (offline)",
+      note: "Auto-save-as-draft + automatic retry on reconnect. Byte-level upload progress reassures users on visibly slow connections that something is happening.",
+      tag: "Low-connectivity hard constraint"
+    },
+  ];
+
+  const list = document.getElementById('screen-list');
+  screens.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'screen-btn' + (s.id === 1 ? ' active' : '');
+    btn.id = 'nav-' + s.id;
+    btn.onclick = () => showScreen(s.id);
+    btn.innerHTML = `<span class="num">${s.id}</span><span>${s.name}</span>`;
+    list.appendChild(btn);
+  });
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.querySelectorAll('.screen-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('nav-' + id).classList.add('active');
+
+    const s = screens.find(x => x.id === id);
+    document.getElementById('annotation-box').innerHTML =
+      `<strong>Screen ${s.id}, ${s.name}</strong>${s.note}<span class="tag">${s.tag}</span>`;
+  }
+
+  const idGuides = {
+    "NIN": {
+      svg: `<svg width="72" height="46" viewBox="0 0 72 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="70" height="44" rx="6" fill="#1A2340" stroke="#D9A441" stroke-width="1.5"/>
+        <rect x="6" y="8" width="40" height="2.5" rx="1" fill="#5A6690"/>
+        <rect x="6" y="14" width="34" height="2.5" rx="1" fill="#5A6690"/>
+        <rect x="6" y="20" width="30" height="2.5" rx="1" fill="#5A6690"/>
+        <rect x="6" y="35" width="58" height="5" rx="1.5" fill="#D9A441"/>
+      </svg>`,
+      caption: "Hold your NIN slip flat and unfolded, with the full NIN clearly visible, exact layout varies by slip version."
+    },
+    "Driver's License": {
+      svg: `<svg width="72" height="46" viewBox="0 0 72 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="70" height="44" rx="6" fill="#1A2340" stroke="#D9A441" stroke-width="1.5"/>
+        <circle cx="15" cy="17" r="8" fill="#3A4670"/>
+        <rect x="27" y="9" width="30" height="3" rx="1.5" fill="#5A6690"/>
+        <rect x="27" y="16" width="24" height="3" rx="1.5" fill="#5A6690"/>
+        <rect x="7" y="30" width="58" height="3" rx="1.5" fill="#5A6690"/>
+        <rect x="7" y="36" width="40" height="3" rx="1.5" fill="#D9A441"/>
+      </svg>`,
+      caption: "Card is landscape and slightly glossy, tilt slightly to avoid glare across your photo and the license number."
+    },
+    "Voter's Card": {
+      svg: `<svg width="72" height="46" viewBox="0 0 72 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="70" height="44" rx="6" fill="#1A2340" stroke="#D9A441" stroke-width="1.5"/>
+        <rect x="7" y="7" width="15" height="18" rx="2" fill="#3A4670"/>
+        <rect x="26" y="9" width="28" height="3" rx="1.5" fill="#5A6690"/>
+        <rect x="26" y="16" width="22" height="3" rx="1.5" fill="#5A6690"/>
+        <rect x="7" y="29" width="58" height="3" rx="1.5" fill="#5A6690"/>
+        <rect x="7" y="35" width="30" height="4" rx="1.5" fill="#D9A441"/>
+      </svg>`,
+      caption: "Older cards may be worn or laminated, make sure your VIN number along the bottom edge is fully readable."
+    }
+  };
+
+  function renderIdGuide(type) {
+    const g = idGuides[type];
+    document.getElementById('id-guide').innerHTML =
+      `${g.svg}<div class="id-guide-text"><strong>${type}</strong>${g.caption}</div>`;
+  }
+
+  const copy = {
+    en: {
+      title: "Let's verify it's you",
+      body: "Good news, we already have your BVN on file. We just need to confirm your ID and take a quick selfie.",
+      time: "⏱ Takes about 3 minutes",
+      need1: "🪪 A valid ID, NIN, driver's license or voter's card",
+      need2: "🤳 A few seconds for a selfie",
+      q: "Why confirm my identity if you have my BVN?",
+      a: "Your BVN confirms who you were when you registered, it doesn't confirm it's really you applying right now. The ID photo and live selfie prove that, so no one else can take out a loan using your details.",
+      cta: "Start verification",
+    },
+    pcm: {
+      title: "Make we confirm say na you",
+      body: "Good news, we don already get your BVN. Just confirm your ID and snap one quick selfie.",
+      time: "⏱ E go take like 3 minutes",
+      need1: "🪪 Valid ID, NIN, driver's license or voter's card",
+      need2: "🤳 Small time for selfie",
+      q: "Why I go still confirm identity if una don get my BVN?",
+      a: "Your BVN na who you be when you first register, e no show say na really you dey apply now. The ID photo and live selfie go prove say na you, so nobody else fit use your details take loan.",
+      cta: "Start am",
+    },
+  };
+
+  function setLang(lang) {
+    const c = copy[lang];
+    document.getElementById('s1-title').textContent = c.title;
+    document.getElementById('s1-body').textContent = c.body;
+    document.getElementById('s1-time').textContent = c.time;
+    document.getElementById('s1-needs').children[0].textContent = c.need1;
+    document.getElementById('s1-needs').children[1].textContent = c.need2;
+    document.getElementById('s1-accordion-q').firstChild.textContent = c.q + ' ';
+    document.getElementById('s1-accordion-a').textContent = c.a;
+    document.getElementById('s1-cta').textContent = c.cta;
+
+    document.querySelectorAll('.lang-opt').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.lang-opt[data-lang="${lang}"]`).classList.add('active');
+  }
+
+  function selectChip(el) {
+    el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    renderIdGuide(el.textContent.trim());
+  }
+
+  let captureAttempts = 0;
+
+  function captureId() {
+    captureAttempts++;
+    document.getElementById('live-viewport').style.display = 'none';
+    document.getElementById('review-viewport').style.display = 'flex';
+    document.getElementById('shutter-row').style.display = 'none';
+    document.getElementById('capture-helper').style.display = 'none';
+    document.getElementById('review-actions').style.display = 'block';
+
+    // Simulated quality check, first attempt shows a flagged issue to demonstrate
+    // the system catching a bad capture rather than silently accepting it.
+    const simulateGlare = captureAttempts === 1;
+    const checks = [
+      { label: 'All four corners visible', pass: true },
+      { label: 'Text and photo in focus', pass: true },
+      { label: simulateGlare ? 'Glare detected on ID number' : 'No glare detected', pass: !simulateGlare },
+    ];
+
+    document.getElementById('review-check').textContent = simulateGlare ? '!' : '✓';
+    document.getElementById('review-check').style.background = simulateGlare ? '#B3261E' : '#1B7A4A';
+
+    document.getElementById('quality-list').innerHTML = checks.map(c =>
+      `<div class="quality-item"><span class="dot ${c.pass ? 'pass' : 'warn'}">${c.pass ? '✓' : '!'}</span>${c.label}</div>`
+    ).join('');
+
+    const useBtn = document.getElementById('use-photo-btn');
+    if (simulateGlare) {
+      useBtn.textContent = 'Use anyway';
+      useBtn.classList.add('secondary');
+    } else {
+      useBtn.textContent = 'Use this photo';
+      useBtn.classList.remove('secondary');
+    }
+
+    // After 2 attempts, surface the manual-entry fallback alongside retake.
+    if (captureAttempts >= 2) {
+      document.getElementById('fallback-prompt').style.display = 'block';
+    }
+  }
+
+  function retakePhoto() {
+    document.getElementById('live-viewport').style.display = 'flex';
+    document.getElementById('review-viewport').style.display = 'none';
+    document.getElementById('shutter-row').style.display = 'flex';
+    document.getElementById('capture-helper').style.display = 'block';
+    document.getElementById('review-actions').style.display = 'none';
+  }
+
+  function toggleManualEntry() {
+    document.getElementById('camera-mode').style.display = 'none';
+    document.getElementById('manual-mode').style.display = 'block';
+  }
+
+  function toggleCameraMode() {
+    document.getElementById('manual-mode').style.display = 'none';
+    document.getElementById('camera-mode').style.display = 'block';
+    document.getElementById('fallback-prompt').style.display = 'none';
+    retakePhoto();
+    captureAttempts = 0;
+  }
+
+  // init annotation
+  showScreen(1);
+  renderIdGuide("NIN");
+</script>
+
+</body>
+</html>
