@@ -3,7 +3,7 @@
 Claude (Anthropic) helped with: structuring the audit, writing the reasoning behind each screen, writing the test plan and impact numbers, and building the working prototype from a written spec.
 
 #### Prompts and what came back
-* Prompt 1, building the audit: "Map each of the four real user quotes to the exact screen where it happens, and explain why it happens, not just what happens." 
+* Prompt 1, building the audit: "Map each of the four real user pain points to the exact screen where it happens, and explain why it happens, not just what happens." 
 
 Result: a table matching each pain point to a screen, with a short reason for each. The "current flow" used here was a guess, not the real one, since the brief didn't include it. That was said clearly instead of pretending it was confirmed.
 * Prompt 2, building the prototype: A full spec for the six screens, covering layout, accessibility rules, and how it should behave on a slow connection, written like a note to a developer. 
